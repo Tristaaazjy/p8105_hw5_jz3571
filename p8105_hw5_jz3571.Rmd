@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r, message=FALSE}
 library(tidyverse)
 library(patchwork)
+library(rvest)
 ```
 
 ## Problem 1
@@ -93,5 +94,26 @@ homicide_bal = homicide_tidy %>%
 prop.test(homicide_bal$unresolved, homicide_bal$total) %>% 
   broom::tidy() %>% 
   select(estimate, conf.low, conf.high)
+```
+
+```{r}
+prop_test = function(x, y){
+  
+  test = prop.test(x,y) %>% 
+    broom::tidy() %>% 
+  select(estimate, conf.low, conf.high)
+  
+  test
+  
+}
+
+prop_city =
+  map2(.x = homicide_tidy$unresolved, .y = homicide_tidy$total,
+       ~prop_test(.x, .y)) %>% 
+  bind_rows() %>% 
+  mutate(city_state = homicide_tidy$city_state) %>% 
+  select(city_state, everything())
+
+prop_city
 ```
 
