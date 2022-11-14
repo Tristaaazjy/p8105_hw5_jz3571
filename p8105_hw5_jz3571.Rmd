@@ -4,7 +4,7 @@ author: "Junyan Zhu"
 date: "2022-11-14"
 output: github_document
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -13,11 +13,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message=FALSE}
 library(tidyverse)
+library(patchwork)
 ```
 
 ## Problem 1
 
-```{r}
+```{r, message=FALSE}
 longstudy_df = 
   tibble(file_name = list.files(path =  "./data/P1") ) %>% 
   mutate(
@@ -34,4 +35,34 @@ longstudy_df =
                values_to = "observation",
                names_prefix = "week_")
 ```
+
+```{r}
+longstudy_df 
+```
+
+```{r}
+control_plot = longstudy_df %>% 
+  filter(arm == "control") %>% 
+  mutate(week = as.numeric(week))%>% 
+  ggplot(aes(x = week, y = observation, group = id)) +
+  geom_line(aes(color = id)) +
+  labs(title = "Observations of Control by Week",
+       x = "Time (week)",
+       y = "Obervation'") +
+  theme(legend.position = "bottom")
+
+case_plot = longstudy_df %>% 
+  filter(arm == "case") %>% 
+  mutate(week = as.numeric(week))%>% 
+  ggplot(aes(x = week, y = observation, group = id)) +
+  geom_line(aes(color = id)) +
+  labs(title = "Observations of Case by Week",
+       x = "Time (week)",
+       y = "Obervation'") +
+  theme(legend.position = "bottom")
+
+control_plot + case_plot
+```
+
+
 
