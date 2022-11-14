@@ -1,0 +1,37 @@
+---
+title: "p8105_hw5_jz3571"
+author: "Junyan Zhu"
+date: "2022-11-14"
+output: github_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+library(tidyverse)
+```
+
+## Problem 1
+
+```{r}
+longstudy_df = 
+  tibble(file_name = list.files(path =  "./data/P1") ) %>% 
+  mutate(
+    path = str_c("./data/P1/", file_name),
+    data = map(.x = path, ~read_csv(.x))
+  ) %>% 
+  separate(file_name, into = c("arm", "id"), sep = "_") %>% 
+  mutate(id = gsub(".csv", "", id),
+         arm = recode(arm, con = "control", exp = 'case')) %>% 
+  select(-path) %>% 
+  unnest(data) %>% 
+  pivot_longer(week_1: week_8,
+               names_to = "week",
+               values_to = "observation",
+               names_prefix = "week_")
+```
+
