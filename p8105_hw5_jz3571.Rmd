@@ -42,28 +42,20 @@ longstudy_df
 ```
 
 ```{r}
-control_plot = longstudy_df %>% 
-  filter(arm == "control") %>% 
-  mutate(week = as.numeric(week))%>% 
-  ggplot(aes(x = week, y = observation, group = id)) +
-  geom_line(aes(color = id)) +
-  labs(title = "Observations of Control by Week",
-       x = "Time (week)",
-       y = "Obervation'") +
-  theme(legend.position = "bottom")
-
-experiment_plot = longstudy_df %>% 
-  filter(arm == "experiment") %>% 
-  mutate(week = as.numeric(week))%>% 
-  ggplot(aes(x = week, y = observation, group = id)) +
-  geom_line(aes(color = id)) +
-  labs(title = "Observations of Experiment by Week",
-       x = "Time (week)",
-       y = "Obervation'") +
-  theme(legend.position = "bottom")
-
-control_plot + experiment_plot
+longstudy_df %>% 
+  ggplot(aes(x = week, y = observation)) +
+  geom_path(aes(color = arm,group = as.factor(id))) +
+  labs(
+    title = "Observations on Each Subject over Time",
+    x = "Week",
+    y = "Observation",
+    caption = "Data from a longitudinal study") +
+  theme(legend.position = "bottom") +
+  theme(plot.title = element_text(hjust = 0.5))
+  
 ```
+
+
 
 The experiment arm has a higher observation data compared to control arm. The control and experiment arms had similar observations for the first several weeks. However, as time goes, the experiment arms have a increasing trend while the control arms have a fluctuation trend.
 
@@ -98,7 +90,8 @@ homicide_bal = homicide_tidy %>%
 
 prop.test(homicide_bal$unresolved, homicide_bal$total) %>% 
   broom::tidy() %>% 
-  select(estimate, conf.low, conf.high)
+  select(estimate, conf.low, conf.high) %>% 
+  knitr::kable()
 ```
 
 ### Prop.test for each city
@@ -140,6 +133,21 @@ prop_city %>%
     caption = "Data from the Washington Post") +
    theme(plot.title = element_text(hjust = 0.5))
   
+```
+
+
+## Problem 3
+
+```{r}
+sim_mean_sd = function(n_obs, mu = 0, sigma = 4){
+  
+  x = rnorm(n = n_obs, mean = mu, sd = sigma)
+  
+  tibble(
+    mean = mean(x),
+    sd = sd(x)
+     )
+}
 ```
 
 
