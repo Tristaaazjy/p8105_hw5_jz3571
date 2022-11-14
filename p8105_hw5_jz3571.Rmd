@@ -76,10 +76,22 @@ homicide_df = read_csv("./data/homicide-data.csv")
 The raw data from Washington Post homicide data has 52179 rows and 12 columns. It recorded 52179 homicide cases with 12 variables, including uid, reported date, victim's last name, victim's first name, victim's race, age, sex, city, state, the location of the killing in latitude and longitude and also disposition.
 
 ```{r}
-homicide_df %>% 
-  mutate(city_state = str_c(city, state, sep = "_")) %>% 
+homicide_city = homicide_df %>% 
+  mutate(city_state = str_c(city, state, sep = "_"))
+
+homicide_tidy = homicide_city %>% 
   group_by(city_state) %>% 
   summarise(total = n(), unresolved = sum(disposition == "Closed without arrest" | disposition == "Open/No arrest")) 
 
+```
+
+
+```{r}
+homicide_bal = homicide_tidy %>% 
+  filter(city_state == "Baltimore_MD")
+
+prop.test(homicide_bal$unresolved, homicide_bal$total) %>% 
+  broom::tidy() %>% 
+  select(estimate, conf.low, conf.high)
 ```
 
