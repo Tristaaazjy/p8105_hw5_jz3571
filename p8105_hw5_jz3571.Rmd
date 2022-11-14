@@ -70,11 +70,15 @@ The experiment arm has a higher observation data compared to control arm. The co
 
 ## Problem 2
 
+### Describe the raw data
+
 ```{r}
 homicide_df = read_csv("./data/homicide-data.csv")
 ```
 
 The raw data from Washington Post homicide data has 52179 rows and 12 columns. It recorded 52179 homicide cases with 12 variables, including uid, reported date, victim's last name, victim's first name, victim's race, age, sex, city, state, the location of the killing in latitude and longitude and also disposition.
+
+### Create city_state variable and summarize total and unresolved cases within cities
 
 ```{r}
 homicide_city = homicide_df %>% 
@@ -86,6 +90,7 @@ homicide_tidy = homicide_city %>%
 
 ```
 
+### Prop.test for Baltimore_MD
 
 ```{r}
 homicide_bal = homicide_tidy %>% 
@@ -95,6 +100,8 @@ prop.test(homicide_bal$unresolved, homicide_bal$total) %>%
   broom::tidy() %>% 
   select(estimate, conf.low, conf.high)
 ```
+
+### Prop.test for each city
 
 ```{r}
 prop_test = function(x, y){
@@ -116,4 +123,23 @@ prop_city =
 
 prop_city
 ```
+
+### Plot of estimates and CIs for each city
+
+```{r}
+prop_city %>% 
+  mutate(city_state = fct_reorder(city_state, estimate)) %>% 
+  ggplot(aes(x = city_state, y = estimate)) +
+  geom_point() + 
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  labs(
+    title = "Estimates and CIs for Each City",
+    x = "City, State",
+    y = "Estimates",
+    caption = "Data from the Washington Post") +
+   theme(plot.title = element_text(hjust = 0.5))
+  
+```
+
 
