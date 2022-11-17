@@ -104,7 +104,7 @@ prop_test = function(x, y){
   
   test = prop.test(x,y) %>% 
     broom::tidy() %>% 
-  select(estimate, conf.low, conf.high)
+    select(estimate, conf.low, conf.high)
   
   test
   
@@ -241,6 +241,6 @@ sim_results %>%
   
 ```
 
-The average estimate of μ^ is approximately equal to thr true $\mu$ for all samples. However, in the rejected sample, the average estimate of μ^ is approximately equal to true $/mu$ only when true $\mu$ is greater than 4. This means the average estimate is a good approximation of the true $\mu$ when effect size is large, and not a good approximation when effect size is small.
+The average estimate of μ^ is approximately equal to the true $\mu$ for all samples. However, in the rejected sample, the average estimate of μ^ is approximately equal to true $\mu$ only when true $\mu$ is greater than 4. This means the average estimate is a good approximation of the true $\mu$ when effect size is large, while it is not a good approximation when effect size is small.
 
 
