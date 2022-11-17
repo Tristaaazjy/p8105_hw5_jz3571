@@ -78,7 +78,10 @@ homicide_city = homicide_df %>%
 
 homicide_tidy = homicide_city %>% 
   group_by(city_state) %>% 
-  summarise(total = n(), unresolved = sum(disposition == "Closed without arrest" | disposition == "Open/No arrest"))
+  summarise(total = n(), unresolved = sum(disposition == "Closed without arrest" | disposition == "Open/No arrest")) %>% 
+  filter(city_state != "Tulsa_AL")
+
+knitr::kable(homicide_tidy)
 
 ```
 
@@ -114,8 +117,7 @@ prop_city =
   mutate(city_state = homicide_tidy$city_state) %>% 
   select(city_state, everything())
 
-prop_city %>% 
-  knitr::kable()
+knitr::kable(prop_city)
 ```
 
 #### Plot of estimates and CIs for each city
@@ -166,8 +168,7 @@ for (i in 1:5000){
 }
 
 bind_rows(output) %>% 
-  unnest() %>% 
-  head()
+  unnest()
 ```
 
 #### Repeat above for $\mu$ = 1,2,3,4,5,6
@@ -177,13 +178,12 @@ sim_results =
   tibble(true_mu = c(0, 1, 2, 3, 4, 5, 6)) %>% 
   mutate(
     output = map(.x = true_mu, ~rerun(5000, sim_func(mu = .x))),
-    estimate = map(output, bind_rows)
+    test_estimate = map(output, bind_rows)
     ) %>% 
   select(-output) %>% 
   unnest()
 
-sim_results %>% 
-  head()
+sim_results
   
 ```
 
@@ -196,8 +196,9 @@ sim_results %>%
             rejected = sum(p.value < 0.05)) %>% 
   mutate(proportion = rejected/total) %>% 
   ggplot(aes(y = proportion, x = true_mu)) +
-  geom_line() +
-    labs(
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  labs(
     x = "True μ ",
     y = "Power of the test",
     title = "Power of the Test over different True μ"
@@ -209,7 +210,7 @@ sim_results %>%
 As μ increases, the proportion of null which was rejected increases as well, which means that as effect size increases, power of the test increases.
 
 
-#### Make a plot showing the average estimate of μ̂  on the y axis and the true value of μ on the x axis. Overlay a second plot (in Blue) of the average estimate of μ̂  only in samples for which the null was rejected on the y axis and the true value of μ on the x axis. 
+#### Make a plot showing the average estimate of μ̂  on the y axis and the true value of μ on the x axis. Overlay a second plot (in BLUE) of the average estimate of μ̂  only in samples for which the null was rejected on the y axis and the true value of μ on the x axis. 
 
 ```{r}
 rejected_muhat = 
@@ -226,9 +227,11 @@ sim_results %>%
   group_by(true_mu) %>% 
   summarise(ave_muhat = mean(estimate)) %>% 
   ggplot(aes(x = true_mu, y = ave_muhat)) +
-  geom_line(color = "red") +
-  geom_line(data = rejected_muhat,
-            color = "blue") +
+  geom_point(color = "red") +
+  geom_smooth(se = FALSE , color = "red") +
+  geom_point(data = rejected_muhat,
+            color = "blue") + 
+  geom_smooth(data = rejected_muhat, se = FALSE) +
   labs(
     x = "True μ",
     y = "Average Estimate of μ^",
@@ -238,4 +241,6 @@ sim_results %>%
   
 ```
 
-The two plots are approximately the same starting from $\mu$ = 3. At $\mu$ = 1, the average $\hat \mu$ only in samples for which the null was rejected is around 2, instead of 1.
+The average estimate of μ^ is approximately equal to thr true $\mu$ for all samples. However, in the rejected sample, the average estimate of μ^ is approximately equal to true $/mu$ only when true $\mu$ is greater than 4. This means the average estimate is a good approximation of the true $\mu$ when effect size is large, and not a good approximation when effect size is small.
+
+
